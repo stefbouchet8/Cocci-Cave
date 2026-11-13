@@ -1,6 +1,6 @@
 {
- "name": "Cocci Primeur - Commande alcools",
- "short_name": "Commande alcools",
+ "name": "Cocci Cave",
+ "short_name": "Cocci Cave",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",
