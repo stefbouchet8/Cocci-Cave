@@ -86,7 +86,7 @@ h1{font-size:1.5rem}
 <button class="b" id="print">Imprimer</button>
 </div>
 <div class="note" id="note"></div>
-<div class="note" style="text-align:center">Cocci Cave · version 2</div>
+<div class="note" style="text-align:center">Cocci Cave · version 3</div>
 <div class="bar"><button class="b s" id="logout" style="display:none">Se déconnecter</button></div>
 </main>
 <div id="login"><div class="box">
@@ -103,14 +103,17 @@ var KEY="commande-alcools-v1";
 var UNITS=["bouteille","cubi","carton","colis","fût","pack"];
 var nid=0;
 function mk(c){return{id:++nid,c:c,n:"",u:"bouteille",p:"",q:""}}
-function sup(n){return{name:n,date:"",items:["Vins","Bières et cidres","Spiritueux"].map(mk)}}
+function sup(n,c){return{name:n,date:"",items:(c||["Vins","Bières et cidres","Spiritueux"]).map(mk)}}
 function seed1(){
 var L=[["Cubis","Cubi Rosé","cubi","8,50"],["Cubis","Cubi Gamay","cubi","9,00"],["Cubis","Cubi Muscadet","cubi","9,35"],["Cubis","Cubi Chardonnay","cubi","9,25"],["Cubis","Cubi Merlot R","cubi","9,35"],
 ["Bouteilles","BTLE Sauvignon","bouteille","3,00"],["Bouteilles","BTLE Merlot","bouteille","3,00"],["Bouteilles","BTLE Grolleau Rosé","bouteille","2,50"],["Bouteilles","BTLE Gamay Rosé","bouteille","2,80"],["Bouteilles","BTLE Chardonnay","bouteille","2,90"],["Bouteilles","BTLE Grolleau gris","bouteille","2,80"],["Bouteilles","BTLE Gamay rouge","bouteille","2,90"],["Bouteilles","BTLE Muscadet","bouteille","3,00"],["Bouteilles","BTLE Gros Plan","bouteille","2,80"],["Bouteilles","BTLE du Moulin","bouteille","4,58"],["Bouteilles","BTLE Bell'Ine","bouteille","4,58"]];
 return{name:"GAEC Guillonneau",date:"",items:L.map(function(x){var o=mk(x[0]);o.n=x[1];o.u=x[2];o.p=x[3];return o})}}
-var S={tva:"20",active:0,suppliers:[seed1(),sup("Fournisseur 2")]};
+var S={tva:"20",active:0,suppliers:[seed1(),sup("La Maison Jard"),sup("Vent d'Rhum",["Rhums"])]};
 try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);if(o&&o.suppliers&&o.suppliers.length)S=o}}catch(e){}
 function fix(){
+var s1=S.suppliers[1];
+if(s1&&s1.name==="Fournisseur 2"){s1.name="La Maison Jard";window.migrated=true}
+if(S.suppliers.length===2){S.suppliers.push(sup("Vent d'Rhum",["Rhums"]));window.migrated=true}
 var s0=S.suppliers[0];if(s0&&s0.name==="Fournisseur 1"&&s0.items.every(function(i){return !i.n&&!i.p&&!i.q}))S.suppliers[0]=seed1();
 if(!S.tva)S.tva="20";
 if(S.active==null||!S.suppliers[S.active])S.active=0;
@@ -258,7 +261,7 @@ onAuthStateChanged(auth,function(u){
     if(canon(remote)===canon(snap())){status(navigator.onLine?"à jour":"hors connexion",navigator.onLine);return}
     applying=true;
     S.tva=remote.tva||S.tva;S.suppliers=remote.suppliers;
-    fix();saveLocal();render();applying=false;status("à jour",1)
+    fix();saveLocal();render();applying=false;status("à jour",1);if(window.migrated){window.migrated=false;window.cloudPush()}
   },function(e){status("erreur ("+(e.code||"inconnue")+")",0)})
 });
 $("lbtn").onclick=async function(){
